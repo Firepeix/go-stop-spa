@@ -15,6 +15,13 @@ const routes: RouteConfig[] = [
       { path: '', name: 'street.index', component: () => import('pages/geographic/street/Index.vue') }
     ]
   },
+  {
+    path: '/traffic-lights',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', name: 'traffic-light.index', component: () => import('pages/control/traffic-light/Index.vue') }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

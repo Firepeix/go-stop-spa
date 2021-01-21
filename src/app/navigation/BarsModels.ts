@@ -1,4 +1,4 @@
-import {IconInterface} from "src/app/primitives/PrimitivesModels";
+import { IconInterface } from 'src/app/primitives/PrimitivesModels'
 
 export interface NavSpace {
   title: string;
@@ -11,4 +11,3 @@ export interface NavLink {
   icon: IconInterface;
   route: string;
 }
-

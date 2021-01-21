@@ -1,24 +1,24 @@
 <template>
   <q-dialog v-model="status">
-    <q-card style="min-width: 400px">
+    <q-card class="dialog-medium">
       <q-card-section class="bg-primary text-right text-white q-pa">
         <div class="row">
           <div class="col text-center row-card-modal">
             <span class="description">
-              Cadastrar Rua
+              Cadastrar Semáforo
             </span>
             <q-btn icon="mdi-close" flat round dense v-close-popup/>
           </div>
         </div>
       </q-card-section>
       <q-card-section>
-        <street-form ref="streetForm"/>
+        <traffic-light-form ref="trafficLightForm"/>
       </q-card-section>
       <q-separator/>
       <q-card-actions align="right" class="text-primary">
         <div class="row full-width justify-center">
           <div class="col-6">
-            <q-btn color="positive" icon="mdi-check" @click="saveStreet" unelevated class="full-width" label="Cadastrar Rua"/>
+            <q-btn color="positive" icon="mdi-check" @click="saveTrafficLight" unelevated class="full-width" label="Cadastrar Semáforo"/>
           </div>
         </div>
       </q-card-actions>
@@ -28,9 +28,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import StreetForm from 'components/geographic/street/StreetForm.vue'
-import { StreetInterface } from 'src/app/models/geographic/GeographicInterfaces'
 import { Notify } from 'boot/notify'
+import TrafficLightForm from 'components/control/traffic-light/TrafficLightForm.vue'
+import { TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -39,29 +39,29 @@ declare module 'vue/types/vue' {
 }
 
 @Component({
-  components: { StreetForm }
+  components: { TrafficLightForm }
 })
 
-export default class CreateStreet extends Vue {
+export default class CreateTrafficLight extends Vue {
   status = false
   $refs!: {
-    streetForm: StreetForm
+    trafficLightForm: TrafficLightForm
   }
 
   public open () {
     this.status = true
   }
 
-  private async saveStreet () {
-    await this.sendStreet(await this.$refs.streetForm.getModel())
+  private async saveTrafficLight () {
+    await this.sendTrafficLight(await this.$refs.trafficLightForm.getModel())
   }
 
-  private async sendStreet (street: StreetInterface|null) : Promise<void> {
-    if (street !== null) {
+  private async sendTrafficLight (trafficLight: TrafficLightInterface|null) : Promise<void> {
+    if (trafficLight !== null) {
       try {
-        await this.$axios.post(`${this.$API_URL}/streets`, street)
-        this.$notify.success('Rua cadastrada com sucesso!')
-        this.$emit('refresh')
+        await this.$axios.post(`${this.$API_URL}/traffic-lights`, trafficLight)
+        this.$notify.success('Semáforo cadastrada com sucesso!')
+        this.$emit('model-created');
         this.status = false
       } catch (error) {
         this.$notify.error()
