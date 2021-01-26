@@ -72,6 +72,7 @@ module.exports = {
     // allow paren-less arrow functions
     'arrow-parens': 'off',
     'one-var': 'off',
+    'no-void': 'off',
     "semi": 0,
     'no-mixed-operators': 'off',
     'import/first': 'off',

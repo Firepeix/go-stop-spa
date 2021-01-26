@@ -1,4 +1,4 @@
-import { RawTrafficLightInterface, TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
+import { RawTrafficLightFindResponse, TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
 
 export interface CameraInterface {
   view: string;
@@ -11,9 +11,9 @@ export interface RawCameraInterface {
   protocol: string,
   view: string;
   trafficLightId: number,
-  trafficLight: RawTrafficLightFindResponse|null
+  trafficLight: RawTrafficLightFindResponse|undefined
 }
 
-export interface RawTrafficLightResponse {
-  data: RawTrafficLightInterface[]
+export interface RawCameraResponse {
+  data: RawCameraInterface[]
 }

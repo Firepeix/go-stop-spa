@@ -3,7 +3,7 @@ export interface TableColumnInterface {
   label: string;
   field: string;
   align: 'center';
-  sortable: true;
+  sortable?: true;
 
-  format? (value: unknown) : string
+  format? (value: unknown) : string|null
 }

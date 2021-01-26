@@ -22,6 +22,13 @@ const routes: RouteConfig[] = [
       { path: '', name: 'traffic-light.index', component: () => import('pages/control/traffic-light/Index.vue') }
     ]
   },
+  {
+    path: '/cameras',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', name: 'camera.index', component: () => import('pages/vision/camera/Index.vue') }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

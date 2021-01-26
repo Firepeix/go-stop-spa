@@ -60,8 +60,7 @@ export default class LeftNavBar extends Vue {
 
   addVisionSpace () {
     const navSpace = new NavNamespace('Visão', new Icon('eye'))
-    navSpace.addLink(new NavModelLink('Cameras', new Icon('camera'), 'street.index'))
-    navSpace.addLink(new NavModelLink('Imagens', new Icon('image'), 'street.index'))
+    navSpace.addLink(new NavModelLink('Cameras', new Icon('camera'), 'camera.index'))
     this.spaces.push(navSpace)
   }
 
