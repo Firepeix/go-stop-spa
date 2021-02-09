@@ -29,6 +29,14 @@ const routes: RouteConfig[] = [
       { path: '', name: 'camera.index', component: () => import('pages/vision/camera/Index.vue') }
     ]
   },
+  {
+    path: '/simulations',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', name: 'simulation.index', component: () => import('pages/simulation/Index.vue') },
+      { path: 'create', name: 'simulation.create', component: () => import('pages/simulation/Create.vue') }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

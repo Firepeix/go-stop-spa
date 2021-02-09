@@ -44,6 +44,7 @@ export default class LeftNavBar extends Vue {
     this.addGeographicSpace()
     this.addControlSpace()
     this.addVisionSpace()
+    this.addSimulationSpace()
   }
 
   addGeographicSpace () {
@@ -61,6 +62,12 @@ export default class LeftNavBar extends Vue {
   addVisionSpace () {
     const navSpace = new NavNamespace('Visão', new Icon('eye'))
     navSpace.addLink(new NavModelLink('Cameras', new Icon('camera'), 'camera.index'))
+    this.spaces.push(navSpace)
+  }
+
+  addSimulationSpace () {
+    const navSpace = new NavNamespace('Simulação', new Icon('matrix'))
+    navSpace.addLink(new NavModelLink('Simulações', new Icon('stairs'), 'simulation.index'))
     this.spaces.push(navSpace)
   }
 
