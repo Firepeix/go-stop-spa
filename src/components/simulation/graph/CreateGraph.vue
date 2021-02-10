@@ -3,7 +3,20 @@
     <q-card-section>
       <div class="row">
         <div class="col-2">
-          <q-btn color="primary" dense @click="addStreet" icon="mdi-plus-circle-outline" unelevated class="full-width" label="Rua"/>
+          <q-btn color="primary" dense icon="mdi-plus-circle-outline" unelevated class="full-width" label="Rua"/>
+          <q-popup-edit v-model="streetName" :validate="val => val.length > 0" @save="addStreet">
+            <template v-slot="{ initialValue, value, emitValue, validate, set, cancel }">
+              <q-input autofocus dense :value="streetName" hint="Nome da Rua" :rules="[ () => validate(value) || 'Insira o nome da rua' ]" @input="emitValue">
+              <template #after>
+                  <q-btn flat dense color="negative" icon="cancel" @click.stop="cancel" />
+                  <q-btn flat dense color="positive" icon="check_circle" @click.stop="set" :disable="validate(value) === false || initialValue === value" />
+                </template>
+              </q-input>
+            </template>
+          </q-popup-edit>
+        </div>
+        <div class="col-2">
+          <q-btn color="primary" dense icon="mdi-plus-circle-outline" unelevated class="full-width" label="Conectar"/>
         </div>
       </div>
     </q-card-section>
@@ -17,22 +30,28 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import cytoscape from 'cytoscape'
+import Graph from 'src/app/simulations/Graph'
 
 @Component
 export default class CreateGraph extends Vue {
 
-  private graph: cytoscape.Core|undefined;
+  private streetName = '';
+  private graph : Graph|undefined;
 
   private construct (): void {
-    this.initCytoscape()
+    this.initGraph()
   }
 
-  private initCytoscape (): void {
-    this.graph = cytoscape({ container: document.getElementById('graph') })
+  private initGraph (): void {
+    const element = document.getElementById('graph');
+    if (element !== null) {
+      this.graph = new Graph(element)
+    }
   }
 
   private addStreet (): void {
-    this.graph?.add({ group: 'nodes', data: { id: 'A', name: 'Teste' } })
+    this.graph?.addNode(this.streetName)
+    this.streetName = ''
   }
 
   public mounted () {
