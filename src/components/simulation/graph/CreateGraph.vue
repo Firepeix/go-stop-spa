@@ -45,8 +45,8 @@
         <div class="col">
           <div id="graph" style="min-height: 395px"></div>
         </div>
-        <div class="col-3" v-show="initialized && graph.selectedNode !== null">
-          <selected-node-options />
+        <div class="col-3" v-show="initialized && selectedNode !== null">
+          <selected-node-options @unselect="unselect" :node="selectedNode"/>
         </div>
       </div>
     </q-card-section>
@@ -55,9 +55,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import cytoscape from 'cytoscape'
-import Graph, { NODE_TYPES } from 'src/app/simulations/Graph'
+import Graph from 'src/app/simulations/Graph'
 import SelectedNodeOptions from 'components/simulation/graph/SelectedNodeOptions.vue'
+import { NODE_TYPES, NodeInterface } from 'src/app/simulations/Node'
 @Component({
   components: { SelectedNodeOptions }
 })
@@ -67,6 +67,7 @@ export default class CreateGraph extends Vue {
   private streetName = '';
   private lightName = '';
   private graph : Graph|undefined = undefined;
+  public selectedNode : NodeInterface|null = null;
 
   private construct (): void {
     this.initGraph()
@@ -77,7 +78,19 @@ export default class CreateGraph extends Vue {
     if (element !== null) {
       this.graph = new Graph(element)
       this.initialized = true
+      this._addListeners()
     }
+  }
+
+  private _addListeners (): void {
+    this.graph?.addNodeEventListeners('select', 'node', (node: NodeInterface) => {
+      this.selectedNode = node
+      console.log(this.selectedNode)
+    })
+    this.graph?.addNodeEventListeners('unselect', 'node', () => {
+      this.selectedNode = null
+      console.log(this.selectedNode)
+    })
   }
 
   private addStreet (): void {
@@ -90,7 +103,12 @@ export default class CreateGraph extends Vue {
     this.lightName = ''
   }
 
+  private unselect (): void {
+    this.selectedNode = null
+  }
+
   private clean (): void {
+    this.selectedNode = null
     this.graph?.clean()
   }
 
