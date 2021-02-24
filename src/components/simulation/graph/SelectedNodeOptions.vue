@@ -12,7 +12,7 @@
     </div>
     <div class="row q-mt-xs q-col-gutter-md">
       <div class="col-6">
-        <q-btn color="positive" @click="connect" dense unelevated class="full-width" label="Remover"/>
+        <q-btn color="positive" @click="connect" dense unelevated class="full-width" label="Conectar"/>
       </div>
       <div class="col-6">
         <q-btn color="negative" @click="removeNode" dense unelevated class="full-width" label="Remover"/>
@@ -22,19 +22,41 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { NodeInterface } from 'src/app/simulations/Node'
 
 @Component
 export default class SelectedNodeOptions extends Vue {
   @Prop({ type: Object, required: false }) readonly node!: NodeInterface;
 
+  private previousSelected : NodeInterface|null = null
+
   public changeName (name: string) : void {
     this.node.changeName(name)
   }
 
   public connect () : void {
+    this._keep(this.node)
+  }
 
+  private _keep (node: NodeInterface) {
+    this.previousSelected = node
+    this.$emit('unselect')
+  }
+
+  @Watch('node')
+  public onNodeChanged () {
+    // console.log(this.node)
+    if (this.previousSelected !== null && this.node !== null) {
+      this._connectTo(this.node)
+    }
+  }
+
+  private _connectTo (node: NodeInterface) {
+    if (this.previousSelected !== null) {
+      this.previousSelected.connectTo(node)
+      this.previousSelected = null
+    }
   }
 
   public removeNode () : void {

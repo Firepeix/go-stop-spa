@@ -26,7 +26,13 @@ export default class Graph {
 
   public addNodeEventListeners (eventName: string, type: string, handler: Function): void {
     this.graph.on(eventName, type, event => {
-      handler(eventName === 'select' ? Node.Create(this._nodeManager.getListeners(), event.target.data('id'), event.target.data('name'), event.target.data('type')) : undefined)
+      if (eventName === 'select') {
+        const listeners = this._nodeManager.getListeners()
+        const node = Node.Create(listeners, event.target.data('id'), event.target.data('name'), event.target.data('type'), event.target.data('outgoingNodes'))
+        handler(node)
+        return
+      }
+      handler(undefined)
     })
   }
 
@@ -35,7 +41,18 @@ export default class Graph {
   }
 
   public removeNode (node: NodeInterface) {
+    this._removeConnections(node)
     this.graph.remove(`#${node.id}`)
+  }
+
+  private _removeConnections (node: NodeInterface) : void {
+    const parents = this.graph.getElementById(node.id).incomers()
+    parents.forEach(rawElement => {
+      if (rawElement.isNode()) {
+        const nodes = rawElement.data('outgoingNodes').filter((id: string) => id !== node.id)
+        rawElement.data('outgoingNodes', nodes)
+      }
+    })
   }
 
   public getCenterPosition (): GraphPosition {
@@ -43,6 +60,18 @@ export default class Graph {
       x: this.element.offsetWidth / 2,
       y: this.element.offsetHeight / 2
     }
+  }
+
+  public connectNodes (baseNode: NodeInterface, node: NodeInterface) : void {
+    const rawNode = this.graph.getElementById(baseNode.id)
+    const outgoingNodes = rawNode.data('outgoingNodes')
+    outgoingNodes.push(node.id)
+    rawNode.data('outgoingNodes', outgoingNodes)
+    this._addEdge(baseNode.id, node.id)
+  }
+
+  private _addEdge(fromId: string, toId: string) : void {
+    this.graph.add({ group: 'edges', data: { source: fromId, target: toId } })
   }
 
   private getNextNodePosition (): GraphPosition {
@@ -61,22 +90,9 @@ export default class Graph {
     return position
   }
 
-  public addNode (name: string, type = NODE_TYPES.ANY, position: GraphPosition = {
-    x: -1,
-    y: 0
-  }): void {
-    position = position.x === -1 ? this.getNextNodePosition() : {
-      x: 0,
-      y: 0
-    }
-    this.graph.add({
-      group: 'nodes',
-      data: {
-        name,
-        type
-      },
-      position
-    })
+  public addNode (name: string, type = NODE_TYPES.ANY, position: GraphPosition = { x: -1, y: 0 }): void {
+    position = position.x === -1 ? this.getNextNodePosition() : { x: 0, y: 0 }
+    this.graph.add({ group: 'nodes', data: { name, type, outgoingNodes: [] }, position })
   }
 
   public clean (): void {
@@ -89,9 +105,10 @@ class GraphStyle {
 
   constructor () {
     this._addNodeStyles()
+    this._addEdgeStyles()
   }
 
-  public _addNodeStyles (): void {
+  private _addNodeStyles (): void {
     this._sheets.push({
       selector: 'node',
       css: {
@@ -106,14 +123,15 @@ class GraphStyle {
         backgroundColor: '#1976d2'
       }
     })
-    this._sheets.push({
-      selector: `node[type = ${NODE_TYPES.TRAFFIC_LIGHT}]`,
-      css: { backgroundColor: '#f9a825' }
-    })
+    this._sheets.push({ selector: `node[type = ${NODE_TYPES.TRAFFIC_LIGHT}]`, css: { backgroundColor: '#f9a825', shape: 'triangle', 'text-margin-y': 8 } })
     this._sheets.push({
       selector: ':selected',
       css: { backgroundColor: 'black' }
     })
+  }
+
+  private _addEdgeStyles (): void {
+    this._sheets.push({ selector: 'edge', css: { 'line-color': 'black', width: 7, 'curve-style': 'straight', 'target-arrow-shape': 'triangle' } })
   }
 
   public toArray (): Stylesheet[] {
@@ -131,7 +149,8 @@ class NodeManager{
   public getListeners ( ) : NodeListeners {
     return {
       changeName: (node: NodeInterface, name: string) => this._graph.changeNodeName(node, name),
-      remove: node => this._graph.removeNode(node)
+      remove: node => this._graph.removeNode(node),
+      connectNodes: (baseNode, node) => this._graph.connectNodes(baseNode, node)
     }
   }
 }

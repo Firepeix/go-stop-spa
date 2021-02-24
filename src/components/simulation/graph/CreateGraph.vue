@@ -85,11 +85,9 @@ export default class CreateGraph extends Vue {
   private _addListeners (): void {
     this.graph?.addNodeEventListeners('select', 'node', (node: NodeInterface) => {
       this.selectedNode = node
-      console.log(this.selectedNode)
     })
     this.graph?.addNodeEventListeners('unselect', 'node', () => {
       this.selectedNode = null
-      console.log(this.selectedNode)
     })
   }
 

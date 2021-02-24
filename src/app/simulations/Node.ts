@@ -7,6 +7,7 @@ export enum NODE_TYPES {
 export interface NodeListeners {
   changeName (node: NodeInterface, name: string): void;
   remove (node: NodeInterface): void;
+  connectNodes (baseNode: NodeInterface, node: NodeInterface): void;
 }
 
 export interface NodeInterface {
@@ -16,6 +17,8 @@ export interface NodeInterface {
   color: string;
 
   changeName (name: string): void;
+
+  connectTo (node: NodeInterface): void;
   remove (): void;
 }
 
@@ -23,15 +26,19 @@ export class Node implements NodeInterface {
   private readonly _id: string
   private _name: string
   private readonly _listeners: NodeListeners
+  private readonly _outgoingNodes: string[]
 
-  protected constructor (listeners: NodeListeners, id: string, _name: string) {
+
+  protected constructor (listeners: NodeListeners, id: string, name: string, outgoingNodes: string[]) {
     this._id = id
-    this._name = _name
+    this._name = name
     this._listeners = listeners
+    this._outgoingNodes = outgoingNodes
   }
 
-  public static Create (listeners: NodeListeners, id: string, name: string, type: NODE_TYPES): NodeInterface {
-    return [new Node(listeners, id, name), new StreetNode(listeners, id, name), new TrafficLightNode(listeners, id, name)][type]
+  public static Create (listeners: NodeListeners, id: string, name: string, type: NODE_TYPES, outgoingNodes: string[]): NodeInterface {
+    const nodeType = [Node, StreetNode, TrafficLightNode]
+    return new nodeType[type](listeners, id, name, outgoingNodes)
   }
 
   get id (): string {
@@ -57,6 +64,10 @@ export class Node implements NodeInterface {
 
   public remove (): void {
     this._listeners.remove(this)
+  }
+
+  public connectTo (node: NodeInterface): void {
+    this._listeners.connectNodes(this, node)
   }
 }
 
