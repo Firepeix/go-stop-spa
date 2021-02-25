@@ -1,5 +1,7 @@
-import cytoscape, { NodeSingular, Stylesheet } from 'cytoscape'
-import { Node, NODE_TYPES, NodeInterface, NodeListeners } from 'src/app/simulations/Node'
+import cytoscape, { Stylesheet } from 'cytoscape'
+import { Node, NODE_TYPES } from 'src/app/simulations/Node'
+import { NodeInterface } from 'src/app/simulations/NodeInterface'
+import { NodeListeners, TrafficLightNodeListeners } from 'src/app/simulations/NodeListeners'
 
 export interface GraphPosition {
   x: number;
@@ -28,7 +30,7 @@ export default class Graph {
     this.graph.on(eventName, type, event => {
       if (eventName === 'select') {
         const listeners = this._nodeManager.getListeners()
-        const node = Node.Create(listeners, event.target.data('id'), event.target.data('name'), event.target.data('type'), event.target.data('outgoingNodes'))
+        const node = Node.Create(listeners, event.target)
         handler(node)
         return
       }
@@ -36,8 +38,8 @@ export default class Graph {
     })
   }
 
-  public changeNodeName (node: NodeInterface, name: string) {
-    this.graph.getElementById(node.id).data('name', name)
+  public changeNodeAttribute (attribute: string, node: NodeInterface, name: string|number) {
+    this.graph.getElementById(node.id).data(attribute, name)
   }
 
   public removeNode (node: NodeInterface) {
@@ -70,6 +72,15 @@ export default class Graph {
     this._addEdge(baseNode.id, node.id)
   }
 
+  public addNode (name: string, type = NODE_TYPES.ANY, position: GraphPosition = { x: -1, y: 0 }): void {
+    position = position.x === -1 ? this.getNextNodePosition() : { x: 0, y: 0 }
+    if (type === NODE_TYPES.TRAFFIC_LIGHT) {
+      this.addTrafficLightNode(name, position)
+      return
+    }
+    this.graph.add({ group: 'nodes', data: { name, type, outgoingNodes: [] }, position })
+  }
+
   private _addEdge(fromId: string, toId: string) : void {
     this.graph.add({ group: 'edges', data: { source: fromId, target: toId } })
   }
@@ -90,9 +101,8 @@ export default class Graph {
     return position
   }
 
-  public addNode (name: string, type = NODE_TYPES.ANY, position: GraphPosition = { x: -1, y: 0 }): void {
-    position = position.x === -1 ? this.getNextNodePosition() : { x: 0, y: 0 }
-    this.graph.add({ group: 'nodes', data: { name, type, outgoingNodes: [] }, position })
+  private addTrafficLightNode (name: string, position: GraphPosition) : void {
+    this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.TRAFFIC_LIGHT, outgoingNodes: [], switchTime: 3 }, position })
   }
 
   public clean (): void {
@@ -146,11 +156,21 @@ class NodeManager{
     this._graph = graph
   }
 
-  public getListeners ( ) : NodeListeners {
+  public getListeners () : NodeListeners {
+    return Object.assign(this._getNodeListeners(), this._getTrafficLightListeners())
+  }
+
+  private _getNodeListeners () : NodeListeners {
     return {
-      changeName: (node: NodeInterface, name: string) => this._graph.changeNodeName(node, name),
+      changeName: (node: NodeInterface, name: string) => this._graph.changeNodeAttribute('name', node, name),
       remove: node => this._graph.removeNode(node),
       connectNodes: (baseNode, node) => this._graph.connectNodes(baseNode, node)
+    }
+  }
+
+  private _getTrafficLightListeners () : TrafficLightNodeListeners {
+    return {
+      changeSwitchTime: (time: number, node: NodeInterface) => this._graph.changeNodeAttribute('switchTime', node, time),
     }
   }
 }

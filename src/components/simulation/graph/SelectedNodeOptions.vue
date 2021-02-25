@@ -10,6 +10,7 @@
         <q-input @input="changeName" :value="node.name" dense label="Nome" />
       </div>
     </div>
+    <traffic-light-options class="q-mt-sm" :node="node" v-if="node.isTrafficLight" />
     <div class="row q-mt-xs q-col-gutter-md">
       <div class="col-6">
         <q-btn color="positive" @click="connect" dense unelevated class="full-width" label="Conectar"/>
@@ -23,9 +24,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { NodeInterface } from 'src/app/simulations/Node'
-
-@Component
+import TrafficLightOptions from 'components/simulation/graph/traffic-lights/TrafficLightOptions.vue'
+import { NodeInterface } from 'src/app/simulations/NodeInterface'
+@Component({
+  components: { TrafficLightOptions }
+})
 export default class SelectedNodeOptions extends Vue {
   @Prop({ type: Object, required: false }) readonly node!: NodeInterface;
 
@@ -46,7 +49,9 @@ export default class SelectedNodeOptions extends Vue {
 
   @Watch('node')
   public onNodeChanged () {
-    // console.log(this.node)
+    if (this.node !== null) {
+      console.log(this.node)
+    }
     if (this.previousSelected !== null && this.node !== null) {
       this._connectTo(this.node)
     }

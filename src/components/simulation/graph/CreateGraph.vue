@@ -57,7 +57,8 @@
 import { Vue, Component } from 'vue-property-decorator'
 import Graph from 'src/app/simulations/Graph'
 import SelectedNodeOptions from 'components/simulation/graph/SelectedNodeOptions.vue'
-import { NODE_TYPES, NodeInterface } from 'src/app/simulations/Node'
+import { NODE_TYPES } from 'src/app/simulations/Node'
+import { NodeInterface } from 'src/app/simulations/NodeInterface'
 @Component({
   components: { SelectedNodeOptions }
 })

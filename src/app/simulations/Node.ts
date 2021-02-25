@@ -1,44 +1,29 @@
+import { NodeSingular } from 'cytoscape'
+import { NodeInterface } from 'src/app/simulations/NodeInterface'
+import { NodeListeners } from 'src/app/simulations/NodeListeners'
+
 export enum NODE_TYPES {
   ANY,
   STREET,
   TRAFFIC_LIGHT
 }
 
-export interface NodeListeners {
-  changeName (node: NodeInterface, name: string): void;
-  remove (node: NodeInterface): void;
-  connectNodes (baseNode: NodeInterface, node: NodeInterface): void;
-}
-
-export interface NodeInterface {
-  id: string;
-  name: string;
-  label: string;
-  color: string;
-
-  changeName (name: string): void;
-
-  connectTo (node: NodeInterface): void;
-  remove (): void;
-}
-
 export class Node implements NodeInterface {
   private readonly _id: string
   private _name: string
-  private readonly _listeners: NodeListeners
+  protected readonly _listeners: NodeListeners
   private readonly _outgoingNodes: string[]
 
-
-  protected constructor (listeners: NodeListeners, id: string, name: string, outgoingNodes: string[]) {
-    this._id = id
-    this._name = name
+  protected constructor (listeners: NodeListeners, rawNode: NodeSingular) {
+    this._id = rawNode.data('id')
+    this._name = rawNode.data('name')
+    this._outgoingNodes = rawNode.data('outgoingNodes')
     this._listeners = listeners
-    this._outgoingNodes = outgoingNodes
   }
 
-  public static Create (listeners: NodeListeners, id: string, name: string, type: NODE_TYPES, outgoingNodes: string[]): NodeInterface {
+  public static Create (listeners: NodeListeners, rawNode: NodeSingular): NodeInterface {
     const nodeType = [Node, StreetNode, TrafficLightNode]
-    return new nodeType[type](listeners, id, name, outgoingNodes)
+    return new nodeType[rawNode.data('type')](listeners, rawNode)
   }
 
   get id (): string {
@@ -69,6 +54,10 @@ export class Node implements NodeInterface {
   public connectTo (node: NodeInterface): void {
     this._listeners.connectNodes(this, node)
   }
+
+  public get isTrafficLight () {
+    return false
+  }
 }
 
 export class StreetNode extends Node {
@@ -82,11 +71,31 @@ export class StreetNode extends Node {
 }
 
 export class TrafficLightNode extends Node {
+  private _switchTime : number;
+
+  constructor (listeners: NodeListeners, rawNode: NodeSingular) {
+    super(listeners, rawNode)
+    this._switchTime = rawNode.data('switchTime')
+  }
+
   get label (): string {
     return 'Semáforo'
   }
 
   get color (): string {
     return 'yellow-9'
+  }
+
+  public get isTrafficLight () {
+    return true
+  }
+
+  get switchTime (): number {
+    return this._switchTime
+  }
+
+  public changeSwitchTime (time: number): void {
+    this._switchTime = time
+    // this._listeners.changeName(this, name)
   }
 }
