@@ -2,7 +2,9 @@
   <div id="selected-node-options" v-if="node !== null">
     <div class="row">
       <div class="col">
-        <q-chip class="full-width" square :color="node.color"><div class="text-center full-width text-bold label">{{ node.label }}</div></q-chip>
+        <q-chip class="full-width" square :color="node.color">
+          <div class="text-center full-width text-bold label">{{ node.label }}</div>
+        </q-chip>
       </div>
     </div>
     <div class="row">

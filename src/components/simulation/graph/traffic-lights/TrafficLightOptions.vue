@@ -3,7 +3,7 @@
     <div class="col">
       <div class="row">
         <div class="col">
-          <q-input :value="node.switchTime" hint="Em Segundos" type="number" dense label="Tempo De Troca" />
+          <q-input :value="node.switchTime" @input="changeSwitchTime" hint="Em Segundos" type="number" dense label="Tempo De Troca" />
         </div>
       </div>
     </div>
@@ -23,7 +23,7 @@ export default class TrafficLightOptions extends Vue {
   }
 
   public changeSwitchTime (time: number) : void {
-    this.node.changeName(name)
+    this.node.changeSwitchTime(time)
   }
 
   public mounted () {

@@ -1,7 +1,8 @@
-import cytoscape, { Stylesheet } from 'cytoscape'
-import { Node, NODE_TYPES } from 'src/app/simulations/Node'
+import cytoscape, { NodeCollection, NodeSingular, Stylesheet } from 'cytoscape'
+import { Node, NODE_TYPES, StreetNode, TrafficLightNode } from 'src/app/simulations/Node'
 import { NodeInterface } from 'src/app/simulations/NodeInterface'
-import { NodeListeners, TrafficLightNodeListeners } from 'src/app/simulations/NodeListeners'
+import { NodeListeners } from 'src/app/simulations/NodeListeners'
+import { Sample, SampleInterface } from 'src/app/models/simulations/Sample'
 
 export interface GraphPosition {
   x: number;
@@ -29,22 +30,53 @@ export default class Graph {
   public addNodeEventListeners (eventName: string, type: string, handler: Function): void {
     this.graph.on(eventName, type, event => {
       if (eventName === 'select') {
-        const listeners = this._nodeManager.getListeners()
-        const node = Node.Create(listeners, event.target)
-        handler(node)
+        handler(this._createNodes([event.target])[0])
         return
       }
       handler(undefined)
     })
   }
 
-  public changeNodeAttribute (attribute: string, node: NodeInterface, name: string|number) {
+  public changeNodeAttribute (attribute: string, name: string|number, node: NodeInterface) {
     this.graph.getElementById(node.id).data(attribute, name)
   }
 
   public removeNode (node: NodeInterface) {
     this._removeConnections(node)
     this.graph.remove(`#${node.id}`)
+  }
+
+  private _createNodes (rawNodes: NodeSingular[]|NodeCollection) : NodeInterface[] {
+    const listeners = this._nodeManager.getListeners()
+    const nodes: NodeInterface[] = []
+    rawNodes.forEach((rawNode:NodeSingular|void) => {
+      if (rawNode) {
+        nodes.push(Node.Create(listeners, rawNode))
+      }
+    })
+    return nodes
+  }
+
+  private _getStreetNodes () : StreetNode[] {
+    const listeners = this._nodeManager.getListeners()
+    const nodes: StreetNode[] = []
+    this.graph.filter(`node[type = ${NODE_TYPES.STREET}]`).forEach((rawNode:NodeSingular|void) => {
+      if (rawNode) {
+        nodes.push(StreetNode.Create(listeners, rawNode))
+      }
+    })
+    return nodes
+  }
+
+  private _getTrafficLightNodes () : TrafficLightNode[] {
+    const listeners = this._nodeManager.getListeners()
+    const nodes: TrafficLightNode[] = []
+    this.graph.filter(`node[type = ${NODE_TYPES.TRAFFIC_LIGHT}]`).forEach((rawNode:NodeSingular|void) => {
+      if (rawNode) {
+        nodes.push(TrafficLightNode.Create(listeners, rawNode))
+      }
+    })
+    return nodes
   }
 
   private _removeConnections (node: NodeInterface) : void {
@@ -108,6 +140,10 @@ export default class Graph {
   public clean (): void {
     this.graph.remove('*')
   }
+
+  public createSample () : SampleInterface {
+    return Sample.CreateFromNodes(this._getStreetNodes(), this._getTrafficLightNodes());
+  }
 }
 
 class GraphStyle {
@@ -157,20 +193,14 @@ class NodeManager{
   }
 
   public getListeners () : NodeListeners {
-    return Object.assign(this._getNodeListeners(), this._getTrafficLightListeners())
+    return this._getNodeListeners()
   }
 
   private _getNodeListeners () : NodeListeners {
     return {
-      changeName: (node: NodeInterface, name: string) => this._graph.changeNodeAttribute('name', node, name),
+      changeAttribute: (attribute: string, value: string|number, node: NodeInterface) => this._graph.changeNodeAttribute(attribute, value, node),
       remove: node => this._graph.removeNode(node),
       connectNodes: (baseNode, node) => this._graph.connectNodes(baseNode, node)
-    }
-  }
-
-  private _getTrafficLightListeners () : TrafficLightNodeListeners {
-    return {
-      changeSwitchTime: (time: number, node: NodeInterface) => this._graph.changeNodeAttribute('switchTime', node, time),
     }
   }
 }

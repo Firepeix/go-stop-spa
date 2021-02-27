@@ -59,6 +59,7 @@ import Graph from 'src/app/simulations/Graph'
 import SelectedNodeOptions from 'components/simulation/graph/SelectedNodeOptions.vue'
 import { NODE_TYPES } from 'src/app/simulations/Node'
 import { NodeInterface } from 'src/app/simulations/NodeInterface'
+import { SampleInterface } from 'src/app/models/simulations/Sample'
 @Component({
   components: { SelectedNodeOptions }
 })
@@ -109,6 +110,10 @@ export default class CreateGraph extends Vue {
   private clean (): void {
     this.selectedNode = null
     this.graph?.clean()
+  }
+
+  public createSample () : SampleInterface {
+    return this.graph?.createSample()
   }
 
   public mounted () {

@@ -1,6 +1,5 @@
 import { Icon } from 'src/app/primitives/Icon'
 import { Vue } from 'vue-property-decorator'
-import SelectStreet from 'components/simulation/steps/SelectStreet.vue'
 import { VueClass } from 'vue-class-component/lib/declarations'
 
 export interface StepInterface {
@@ -9,13 +8,18 @@ export interface StepInterface {
   icon: Icon;
   isCompleted: boolean;
   getComponent () : VueClass<Vue>
+  complete () : void
+}
+
+export interface StepComponentInterface {
+  complete () : void
 }
 
 export abstract class Step implements StepInterface {
   private readonly _icon: Icon
   private readonly _id: number
-  private readonly _isCompleted: boolean
   private readonly _title: string
+  private _isCompleted: boolean
 
   protected constructor (id: number, title: string, icon: Icon) {
     this._icon = icon
@@ -42,6 +46,10 @@ export abstract class Step implements StepInterface {
 
   getComponent (): VueClass<Vue> {
     return this.getComponentStep();
+  }
+
+  complete () {
+    this._isCompleted = true
   }
 
   protected abstract getComponentStep (): VueClass<Vue>;

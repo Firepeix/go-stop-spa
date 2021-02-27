@@ -10,22 +10,29 @@
         </div>
       </div>
       <div class="row">
-        <div class="col" v-show="sampleId !== 0">
+        <div class="col" v-show="sampleId !== 0 && hasSample">
 
         </div>
-        <create-graph class="q-mt-md" />
+        <create-graph ref="createGraph" v-show="sampleId === 0 && hasSample" class="q-mt-md" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import CreateGraph from 'components/simulation/graph/CreateGraph.vue'
+import { StepComponentInterface, StepInterface } from 'src/app/models/simulations/Step'
 @Component({
   components: { CreateGraph }
 })
-export default class SelectStreet extends Vue {
+export default class SelectStreet extends Vue implements StepComponentInterface{
+  @Prop({ type: Object, required: true }) readonly step!: StepInterface;
+
+  $refs!: {
+    createGraph: CreateGraph
+  }
+
   public sampleId = 0
   public sample = null
   public hasSample = false
@@ -33,5 +40,11 @@ export default class SelectStreet extends Vue {
   private newSample () : void {
     this.hasSample = true
   }
+
+  complete (): void {
+    const sample = this.sampleId === 0 ? this.$refs.createGraph.createSample() : null
+    console.log(JSON.stringify(sample?.streetSamples))
+  }
+
 }
 </script>

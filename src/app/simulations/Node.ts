@@ -2,6 +2,11 @@ import { NodeSingular } from 'cytoscape'
 import { NodeInterface } from 'src/app/simulations/NodeInterface'
 import { NodeListeners } from 'src/app/simulations/NodeListeners'
 
+export interface BasicInfoInterface {
+  id: string,
+  name: string
+}
+
 export enum NODE_TYPES {
   ANY,
   STREET,
@@ -42,9 +47,13 @@ export class Node implements NodeInterface {
     return '#E0E0E0'
   }
 
+  get outgoingNodes (): string[] {
+    return this._outgoingNodes
+  }
+
   public changeName (name: string): void {
     this._name = name
-    this._listeners.changeName(this, name)
+    this._listeners.changeAttribute('name', name, this)
   }
 
   public remove (): void {
@@ -58,9 +67,17 @@ export class Node implements NodeInterface {
   public get isTrafficLight () {
     return false
   }
+
+  get info () : BasicInfoInterface {
+    return { id: this._id, name: this._name }
+  }
 }
 
 export class StreetNode extends Node {
+  public static Create (listeners: NodeListeners, rawNode: NodeSingular): StreetNode {
+    return new StreetNode(listeners, rawNode)
+  }
+
   get label (): string {
     return 'Rua'
   }
@@ -76,6 +93,10 @@ export class TrafficLightNode extends Node {
   constructor (listeners: NodeListeners, rawNode: NodeSingular) {
     super(listeners, rawNode)
     this._switchTime = rawNode.data('switchTime')
+  }
+
+  public static Create (listeners: NodeListeners, rawNode: NodeSingular): TrafficLightNode {
+    return new TrafficLightNode(listeners, rawNode)
   }
 
   get label (): string {
@@ -96,6 +117,6 @@ export class TrafficLightNode extends Node {
 
   public changeSwitchTime (time: number): void {
     this._switchTime = time
-    // this._listeners.changeName(this, name)
+    this._listeners.changeAttribute('switchTime', time, this)
   }
 }
