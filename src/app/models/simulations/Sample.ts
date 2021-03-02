@@ -2,6 +2,7 @@ import { BasicInfoInterface, StreetNode, TrafficLightNode } from 'src/app/simula
 
 export interface SampleInterface {
   streetSamples: StreetSampleCollection;
+  basicStreets: BasicInfoInterface[]
 }
 
 interface StreetSampleCollection {
@@ -29,7 +30,7 @@ export class Sample implements SampleInterface {
     this._streetSamples = streetSamples
   }
 
-  public static CreateFromNodes (streetNodes: StreetNode[], lightNodes: TrafficLightNode[]) {
+  public static CreateFromNodes (streetNodes: StreetNode[], lightNodes: TrafficLightNode[]): SampleInterface {
     const collection: StreetSampleCollection = {}
     streetNodes.forEach(street => {
       const outgoingTrafficLights = lightNodes.filter(node => street.outgoingNodes.find(id => node.id === id) !== undefined)
@@ -43,6 +44,10 @@ export class Sample implements SampleInterface {
       }
     })
     return new Sample(collection)
+  }
+
+  public static CreateFromSerialized (payload: string) : SampleInterface {
+    return new Sample(JSON.parse(payload));
   }
 
   public static createTrafficLightSample (lightNodes: TrafficLightNode[], streetNodes: StreetNode[]): TrafficLightSampleCollection {
@@ -60,5 +65,11 @@ export class Sample implements SampleInterface {
 
   get streetSamples (): StreetSampleCollection {
     return this._streetSamples
+  }
+
+  get basicStreets () : BasicInfoInterface[] {
+    return Object.values(this._streetSamples).map(street => {
+      return street.info
+    })
   }
 }

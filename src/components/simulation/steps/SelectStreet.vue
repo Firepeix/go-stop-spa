@@ -43,7 +43,8 @@ export default class SelectStreet extends Vue implements StepComponentInterface{
 
   complete (): void {
     const sample = this.sampleId === 0 ? this.$refs.createGraph.createSample() : null
-    console.log(JSON.stringify(sample?.streetSamples))
+    this.step.save(JSON.stringify(sample?.streetSamples))
+    this.$emit('completed')
   }
 
 }

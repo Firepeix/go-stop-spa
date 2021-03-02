@@ -1,6 +1,7 @@
 import { Icon } from 'src/app/primitives/Icon'
 import { Vue } from 'vue-property-decorator'
 import { VueClass } from 'vue-class-component/lib/declarations'
+import { Simulation } from 'src/app/models/simulations/Simulation'
 
 export interface StepInterface {
   id: number;
@@ -9,6 +10,7 @@ export interface StepInterface {
   isCompleted: boolean;
   getComponent () : VueClass<Vue>
   complete () : void
+  save(payload: string): void
 }
 
 export interface StepComponentInterface {
@@ -50,6 +52,10 @@ export abstract class Step implements StepInterface {
 
   complete () {
     this._isCompleted = true
+  }
+
+  save (payload: string) : void {
+    Simulation.saveStep(this, payload)
   }
 
   protected abstract getComponentStep (): VueClass<Vue>;

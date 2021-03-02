@@ -112,7 +112,7 @@ export default class CreateGraph extends Vue {
     this.graph?.clean()
   }
 
-  public createSample () : SampleInterface {
+  public createSample () : SampleInterface|undefined {
     return this.graph?.createSample()
   }
 
