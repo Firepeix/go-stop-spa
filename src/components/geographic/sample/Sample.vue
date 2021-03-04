@@ -31,6 +31,7 @@ export default class SampleIndex extends Vue {
   public isRecording = false
 
   public construct () {
+    this.isRecording = this.sample.camera !== undefined ? this.sample.camera.isRecording : false
   }
 
   public async searchVehicleRate () : Promise<void> {
@@ -40,8 +41,7 @@ export default class SampleIndex extends Vue {
   public async recordCamera () : Promise<void> {
     const request = { action: this.isRecording ? CAMERA_ACTIONS.STOP : CAMERA_ACTIONS.START }
     this.isRecording = !this.isRecording
-    const response = await this.$axios.post(`${this.$API_URL}/samples/${this.$route.params.id}/record`, request)
-    console.log(response)
+    await this.$axios.post(`${this.$API_URL}/samples/${this.$route.params.id}/record`, request)
   }
 
   public mounted () {

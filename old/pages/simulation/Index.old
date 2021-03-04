@@ -31,6 +31,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import CameraTable from 'components/vision/camera/CameraTable.vue'
+import CreateModal from 'pages/vision/camera/CreateModal.vue'
+import CreateCamera from 'pages/vision/camera/CreateModal.vue'
 
 @Component
 export default class SimulationIndex extends Vue {

@@ -8,33 +8,27 @@ export enum CAMERA_ACTIONS {
   START
 }
 
-export class Camera implements CameraInterface {
-  protocol: string | null
-  trafficLight: TrafficLightInterface | null
-  trafficLightId: number
-  view: string
+export class CameraModel implements CameraInterface {
+  private readonly _isRecording: boolean
+  private readonly _view: string
 
-  private constructor (protocol: string | null, trafficLightId: number, view: string, trafficLight: TrafficLightInterface | null) {
-    this.protocol = protocol
-    this.trafficLight = trafficLight
-    this.trafficLightId = trafficLightId
-    this.view = view
+  constructor (view: string, isRecording: boolean) {
+    this._isRecording = isRecording;
+    this._view = view
   }
 
-  public static New (trafficLightId: number, view: string) {
-    return new Camera(null, trafficLightId, view, null);
+  get isRecording (): boolean {
+    return this._isRecording
   }
 
-  public static fromRaw (rawCamera: RawCameraInterface) : Camera {
-    const light = rawCamera.trafficLight !== undefined ? TrafficLight.fromRaw(rawCamera.trafficLight.data) : null;
-    return new Camera(rawCamera.protocol, rawCamera.trafficLightId, rawCamera.view, light);
+  get view (): string {
+    return this._view
   }
 
   public static getTableColumns () : TableColumnInterface[] {
     return [
       { name: 'protocol', label: 'Protocolo', field: 'protocol', align: 'center', sortable: true },
       { name: 'view', label: 'Tipo de Captura', field: 'view', align: 'center', sortable: true },
-      { name: 'light', label: 'Semáforo', field: 'trafficLight', format: (light: TrafficLightInterface) => light?.protocol, align: 'center'}
     ]
   }
 }

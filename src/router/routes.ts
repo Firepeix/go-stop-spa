@@ -12,25 +12,25 @@ const routes: RouteConfig[] = [
     path: '/streets',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', name: 'street.index', component: () => import('pages/geographic/street/Index.vue') },
+      //{ path: '', name: 'street.index', component: () => import('pages/geographic/street/Index.vue') },
       { path: '/sample', name: 'sample.index', component: () => import('pages/geographic/sample/Index.vue') },
-      { path: '/sample/:id', name: 'sample.show', component: () => import('pages/geographic/sample/Show.vue') },
+      { path: '/sample/:id', name: 'sample.show', component: () => import('pages/geographic/sample/Show.vue') }
     ]
   },
-  {
-    path: '/traffic-lights',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', name: 'traffic-light.index', component: () => import('pages/control/traffic-light/Index.vue') }
-    ]
-  },
-  {
-    path: '/cameras',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { path: '', name: 'camera.index', component: () => import('pages/vision/camera/Index.vue') }
-    ]
-  },
+  // {
+  //   path: '/traffic-lights',
+  //   component: () => import('layouts/MainLayout.vue'),
+  //   children: [
+  //     { path: '', name: 'traffic-light.index', component: () => import('pages/control/traffic-light/Index.vue') }
+  //   ]
+  // },
+  // {
+  //   path: '/cameras',
+  //   component: () => import('layouts/MainLayout.vue'),
+  //   children: [
+  //     { path: '', name: 'camera.index', component: () => import('pages/vision/camera/Index.vue') }
+  //   ]
+  // },
   {
     path: '/simulations',
     component: () => import('layouts/MainLayout.vue'),

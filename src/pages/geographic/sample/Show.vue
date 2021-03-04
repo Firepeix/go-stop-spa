@@ -52,7 +52,7 @@ export default class SampleIndex extends Vue {
   }
 
   public async getSample () : Promise<SampleInterface> {
-    const response = await this.$axios.get(`${this.$API_URL}/samples/${this.$route.params.id}`)
+    const response = await this.$axios.get(`${this.$API_URL}/samples/${this.$route.params.id}`, { params: { include: 'camera' } })
     return Promise.resolve(this.parseSample(response.data.data))
   }
 

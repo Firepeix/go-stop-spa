@@ -4,14 +4,13 @@
       <q-card class="q-ma-lg">
         <q-card-section class="title-page">
           <div class="row">
-            <div class="col-2 title-card" >
-              <q-icon name="mdi-stairs"/>
-              <span> Simulações</span>
+            <div class="col-3 title-card" >
+              <q-icon name="mdi-plus-circle-outline"/>
+              <span> Nova Simulação</span>
             </div>
             <div class="col">
               <div class="row q-gutter-md justify-end">
                 <div class="col-3">
-                  <q-btn color="positive" icon="mdi-plus-circle-outline" :to="{ name: 'simulation.create' }" unelevated class="full-width" label="Simulação"/>
                 </div>
               </div>
             </div>
@@ -21,6 +20,7 @@
         <q-card-section>
           <div class="row">
             <div class="col">
+              <simulation-create-stepper />
             </div>
           </div>
         </q-card-section>
@@ -31,8 +31,10 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-
-@Component
-export default class SimulationIndex extends Vue {
+import SimulationCreateStepper from 'components/simulation/SimulationCreateStepper.vue'
+@Component({
+  components: { SimulationCreateStepper }
+})
+export default class SimulationCreate extends Vue {
 }
 </script>

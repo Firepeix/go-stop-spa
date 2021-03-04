@@ -7,7 +7,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import PaginationMixin from 'src/mixins/page/PaginationMixin'
 import { Notify } from 'boot/notify'
 import { CameraInterface, RawCameraInterface, RawCameraResponse } from 'src/app/models/vision/VisionInterfaces'
-import { Camera } from 'src/app/models/vision/VisionModels'
+import { CameraModel } from 'src/app/models/vision/VisionModels'
 
 declare module 'vue/types/vue' {
   interface Vue {

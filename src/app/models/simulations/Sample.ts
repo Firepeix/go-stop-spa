@@ -1,5 +1,7 @@
 import { BasicInfoInterface, StreetNode, TrafficLightNode } from 'src/app/simulations/Node'
 import { TableColumnInterface } from 'src/app/tables/TableInterfaces'
+import { CameraInterface, RawCameraInterface, RawCameraResponse } from 'src/app/models/vision/VisionInterfaces'
+import { CameraModel } from 'src/app/models/vision/VisionModels'
 
 export interface SampleInterface {
   id: number;
@@ -8,7 +10,8 @@ export interface SampleInterface {
   entryStreetsIds: string[];
   departureStreetsIds: string[];
   streetSamples: StreetSampleCollection;
-  basicStreets: BasicInfoInterface[]
+  basicStreets: BasicInfoInterface[];
+  camera?: CameraInterface;
 }
 
 export interface RawSampleInterface {
@@ -18,6 +21,9 @@ export interface RawSampleInterface {
   payload: string;
   entryStreetsIds: string[];
   departureStreetsIds: string[];
+  camera?: {
+    data: RawCameraInterface
+  }
 }
 
 interface StreetSampleCollection {
@@ -45,6 +51,7 @@ export class Sample implements SampleInterface {
   private _entryStreetsIds: string[] = []
   private _departureStreetsIds: string[] = []
   private readonly _streetSamples: StreetSampleCollection
+  private _camera: CameraInterface|undefined = undefined
 
   private constructor (streetSamples: StreetSampleCollection) {
     this._streetSamples = streetSamples
@@ -73,6 +80,7 @@ export class Sample implements SampleInterface {
   public static CreateFromModel (rawSample: RawSampleInterface) : SampleInterface {
     const sample = new Sample(JSON.parse(rawSample.payload))
     sample._applyMetadata(rawSample.id, rawSample.name, rawSample.cameraLink, rawSample.entryStreetsIds, rawSample.departureStreetsIds)
+    sample._applyRelations(rawSample.camera?.data)
     return sample;
   }
 
@@ -107,6 +115,10 @@ export class Sample implements SampleInterface {
     this._departureStreetsIds = departureStreets
   }
 
+  private _applyRelations (camera: RawCameraInterface|undefined) : void {
+    this._camera = camera !== undefined ? new CameraModel(camera.view, camera.isRecording) : undefined
+  }
+
   get departureStreetsIds (): string[] {
     return this._departureStreetsIds
   }
@@ -125,6 +137,10 @@ export class Sample implements SampleInterface {
 
   get id (): number {
     return this._id
+  }
+
+  get camera (): CameraInterface | undefined {
+    return this._camera
   }
 
   public static getTableColumns () : TableColumnInterface[] {
