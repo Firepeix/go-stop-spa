@@ -42,14 +42,15 @@ export default class LeftNavBar extends Vue {
 
   setSpaces () {
     this.addGeographicSpace()
-    this.addControlSpace()
-    this.addVisionSpace()
-    this.addSimulationSpace()
+    // this.addControlSpace()
+    // this.addVisionSpace()
+    // this.addSimulationSpace()
   }
 
   addGeographicSpace () {
     const navSpace = new NavNamespace('Geográfico', new Icon('map-marker'))
-    navSpace.addLink(new NavModelLink('Ruas', new Icon('map-marker-distance'), 'street.index'))
+    // navSpace.addLink(new NavModelLink('Ruas', new Icon('map-marker-distance'), 'street.index'))
+    navSpace.addLink(new NavModelLink('Amostras', new Icon('map-marker-radius'), 'sample.index'))
     this.spaces.push(navSpace)
   }
 

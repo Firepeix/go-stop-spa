@@ -12,7 +12,9 @@ const routes: RouteConfig[] = [
     path: '/streets',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', name: 'street.index', component: () => import('pages/geographic/street/Index.vue') }
+      { path: '', name: 'street.index', component: () => import('pages/geographic/street/Index.vue') },
+      { path: '/sample', name: 'sample.index', component: () => import('pages/geographic/sample/Index.vue') },
+      { path: '/sample/:id', name: 'sample.show', component: () => import('pages/geographic/sample/Show.vue') },
     ]
   },
   {

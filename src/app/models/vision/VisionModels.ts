@@ -3,6 +3,11 @@ import { TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
 import { TableColumnInterface } from 'src/app/tables/TableInterfaces'
 import { TrafficLight } from 'src/app/models/control/ControlModels'
 
+export enum CAMERA_ACTIONS {
+  STOP,
+  START
+}
+
 export class Camera implements CameraInterface {
   protocol: string | null
   trafficLight: TrafficLightInterface | null

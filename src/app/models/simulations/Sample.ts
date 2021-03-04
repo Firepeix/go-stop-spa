@@ -1,8 +1,23 @@
 import { BasicInfoInterface, StreetNode, TrafficLightNode } from 'src/app/simulations/Node'
+import { TableColumnInterface } from 'src/app/tables/TableInterfaces'
 
 export interface SampleInterface {
+  id: number;
+  name: string;
+  link: string;
+  entryStreetsIds: string[];
+  departureStreetsIds: string[];
   streetSamples: StreetSampleCollection;
   basicStreets: BasicInfoInterface[]
+}
+
+export interface RawSampleInterface {
+  id: number;
+  name: string;
+  cameraLink: string;
+  payload: string;
+  entryStreetsIds: string[];
+  departureStreetsIds: string[];
 }
 
 interface StreetSampleCollection {
@@ -24,6 +39,11 @@ export interface TrafficLightSample {
 }
 
 export class Sample implements SampleInterface {
+  private _id: number = 0
+  private _name: string = ''
+  private _link: string = ''
+  private _entryStreetsIds: string[] = []
+  private _departureStreetsIds: string[] = []
   private readonly _streetSamples: StreetSampleCollection
 
   private constructor (streetSamples: StreetSampleCollection) {
@@ -50,6 +70,12 @@ export class Sample implements SampleInterface {
     return new Sample(JSON.parse(payload));
   }
 
+  public static CreateFromModel (rawSample: RawSampleInterface) : SampleInterface {
+    const sample = new Sample(JSON.parse(rawSample.payload))
+    sample._applyMetadata(rawSample.id, rawSample.name, rawSample.cameraLink, rawSample.entryStreetsIds, rawSample.departureStreetsIds)
+    return sample;
+  }
+
   public static createTrafficLightSample (lightNodes: TrafficLightNode[], streetNodes: StreetNode[]): TrafficLightSampleCollection {
     const collection: TrafficLightSampleCollection = {}
     lightNodes.forEach(light => {
@@ -71,5 +97,41 @@ export class Sample implements SampleInterface {
     return Object.values(this._streetSamples).map(street => {
       return street.info
     })
+  }
+
+  private _applyMetadata (id: number, name: string, link: string, entryStreets: string[], departureStreets: string[]) : void {
+    this._id = id
+    this._name = name
+    this._link = link
+    this._entryStreetsIds = entryStreets
+    this._departureStreetsIds = departureStreets
+  }
+
+  get departureStreetsIds (): string[] {
+    return this._departureStreetsIds
+  }
+
+  get entryStreetsIds (): string[] {
+    return this._entryStreetsIds
+  }
+
+  get link (): string {
+    return this._link
+  }
+
+  get name (): string {
+    return this._name
+  }
+
+  get id (): number {
+    return this._id
+  }
+
+  public static getTableColumns () : TableColumnInterface[] {
+    return [
+      { name: 'id', label: 'Protocolo', field: 'id', align: 'center', sortable: true },
+      { name: 'name', label: 'Nome', field: 'name', align: 'center', sortable: true },
+      { name: 'link', label: 'Camera', field: 'link', align: 'center', sortable: true }
+    ]
   }
 }
