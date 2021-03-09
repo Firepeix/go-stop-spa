@@ -1,25 +1,27 @@
-import { RawStreetFindResponse, StreetInterface } from 'src/app/models/geographic/GeographicInterfaces'
+import { Position, PositionInterface } from 'src/app/primitives/PrimitivesModels'
 
 export interface TrafficLightInterface {
+  id: number;
   defaultSwitchTime: number;
-  id: number|null;
-  streetId: number;
-  street: StreetInterface|null
-  protocol: string|null
+  sampleId: number;
+  status: string;
+  uuid: string;
+  name: string;
+  upperPosition: Position;
+  lowerPosition: Position;
 }
 
 export interface RawTrafficLightInterface {
-  id: number,
-  protocol: string,
+  id: number;
+  sampleId: number;
   defaultSwitchTime: number;
-  streetId: number,
-  street: RawStreetFindResponse|undefined
+  status: string;
+  uuid: string;
+  name: string;
+  upperPosition: PositionInterface;
+  lowerPosition: PositionInterface;
 }
 
-export interface RawTrafficLightResponse {
+export interface RawTrafficLightsResponse {
   data: RawTrafficLightInterface[]
-}
-
-export interface RawTrafficLightFindResponse {
-  data: RawTrafficLightInterface
 }

@@ -1,32 +1,63 @@
-import { StreetInterface } from 'src/app/models/geographic/GeographicInterfaces'
-import { TableColumnInterface } from 'src/app/tables/TableInterfaces'
 import { RawTrafficLightInterface, TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
-import { Street } from 'src/app/models/geographic/GeographicModels'
+import { Position } from 'src/app/primitives/PrimitivesModels'
 
-export class TrafficLight implements TrafficLightInterface {
-  id: number | null
-  defaultSwitchTime: number
-  street: StreetInterface | null
-  streetId: number
-  protocol: string | null
+export class TrafficLightModel implements TrafficLightInterface {
+  private _id: number = 0
+  private _name: string = ''
+  private _uuid: string = ''
+  private _status: string = '0'
+  private _sampleId: number = 0
+  private _defaultSwitchTime: number = 3
+  private _upperPosition: Position
+  private _lowerPosition: Position
 
-  constructor (defaultSwitchTime: number, streetId: number, street: StreetInterface | null = null, protocol: string | null = null, id: number|null = null) {
-    this.defaultSwitchTime = defaultSwitchTime
-    this.streetId = streetId
-    this.street = street
-    this.protocol = protocol
-    this.id = id
+  private constructor () {
+    this._lowerPosition = new Position()
+    this._upperPosition = new Position()
   }
 
-  public static fromRaw(rawLight: RawTrafficLightInterface) : TrafficLight {
-    const street = rawLight.street !== undefined ? Street.fromRaw(rawLight.street.data) : null;
-    return new TrafficLight(rawLight.defaultSwitchTime, rawLight.streetId, street, rawLight.protocol, rawLight.id);
+  public static Create(rawLight: RawTrafficLightInterface) : TrafficLightModel {
+    const model = new TrafficLightModel()
+    model._id = rawLight.id
+    model._name = rawLight.name
+    model._uuid = rawLight.uuid
+    model._sampleId = rawLight.sampleId
+    model._status = rawLight.status
+    model._defaultSwitchTime = rawLight.defaultSwitchTime
+    model._upperPosition = new Position(rawLight.upperPosition.x, rawLight.upperPosition.y)
+    model._lowerPosition = new Position(rawLight.lowerPosition.x, rawLight.lowerPosition.y)
+    return model;
   }
 
-  public static getTableColumns () : TableColumnInterface[] {
-    return [
-      { name: 'protocol', label: 'Protocolo', field: 'protocol', align: 'center', sortable: true },
-      { name: 'defaultSwitchTime', label: 'Tempo de Espera', field: 'defaultSwitchTime', align: 'center', sortable: true }
-    ]
+  get name (): string {
+    return this._name
+  }
+
+  get uuid (): string {
+    return this._uuid
+  }
+
+  get status (): string {
+    return this._status
+  }
+
+  get defaultSwitchTime (): number {
+    return this._defaultSwitchTime
+  }
+
+  get lowerPosition (): Position {
+    return this._lowerPosition
+  }
+
+  get upperPosition (): Position {
+    return this._upperPosition
+  }
+
+  get sampleId (): number {
+    return this._sampleId
+  }
+
+  get id (): number {
+    return this._id
   }
 }
