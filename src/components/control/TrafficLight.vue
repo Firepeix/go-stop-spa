@@ -44,7 +44,7 @@ export default class TrafficLight extends Vue {
   public downloadRate (int: number[]) : void {
     let file = '';
     int.forEach(rate => {
-      file += `${rate}\n`
+      file += `${rate}\r\n`
     })
 
     exportFile(`Taxa de ${this.light.name}.txt`, file)

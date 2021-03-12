@@ -9,7 +9,7 @@ export interface GraphPosition {
   y: number;
 }
 
-export default class Graph {
+export class Graph {
 
   private graph: cytoscape.Core
   private _nodeManager: NodeManager
@@ -36,6 +36,17 @@ export default class Graph {
       handler(undefined)
     })
   }
+
+  public addSample (sample: SampleInterface) : void {
+    this._addSampleTrafficLights(sample)
+  }
+
+  private _addSampleTrafficLights (sample: SampleInterface) : void {
+    sample.trafficLights.forEach(light => {
+      this.addTrafficLightNode(light.name, this.getNextNodePosition())
+    })
+  }
+
 
   public changeNodeAttribute (attribute: string, name: string|number, node: NodeInterface) {
     this.graph.getElementById(node.id).data(attribute, name)

@@ -1,19 +1,22 @@
 <template>
-  <q-page class="row justify-evenly">
-    <div class="col">
-      <div class="row q-col-gutter-md q-pr-lg q-pl-lg q-pt-md q-pb-md">
-        <div class="col-5">
-          <q-btn :color="`${isRecording ? 'negative' : 'positive'}`" :icon="`${isRecording ? 'mdi-stop' : 'mdi-record'}`"
-                 @click="recordCamera" unelevated class="full-width" :label="`${isRecording ? 'Parar Gravação de' : 'Gravar'} Imagens da Camera`"/>
-        </div>
+  <div class="col">
+    <div class="row q-col-gutter-md q-pr-lg q-pl-lg q-pt-md q-pb-md">
+      <div class="col-5">
+        <q-btn :color="`${isRecording ? 'negative' : 'positive'}`" :icon="`${isRecording ? 'mdi-stop' : 'mdi-record'}`"
+               @click="recordCamera" unelevated class="full-width" :label="`${isRecording ? 'Parar Gravação de' : 'Gravar'} Imagens da Camera`"/>
       </div>
-      <q-separator/>
-      <div class="row q-pa-md q-col-gutter-md traffic-lights-wrapper">
-        <traffic-light :key="light.uuid" :light="light" v-for="light in sample.trafficLights"/>
-      </div>
-      <q-separator/>
     </div>
-  </q-page>
+    <q-separator/>
+    <div class="row q-pa-md q-col-gutter-md traffic-lights-wrapper">
+      <traffic-light :key="light.uuid" :light="light" v-for="light in sample.trafficLights"/>
+    </div>
+    <q-separator/>
+    <div class="row q-pa-md q-col-gutter-md">
+      <div class="col">
+        <graph :has-actions="false" :sample="sample"/>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -21,9 +24,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { SampleInterface } from 'src/app/models/simulations/Sample'
 import { CAMERA_ACTIONS } from 'src/app/models/vision/VisionModels'
 import TrafficLight from 'components/control/TrafficLight.vue'
+import Graph from 'components/simulation/graph/Graph.vue'
 
 @Component({
-  components: { TrafficLight }
+  components: {
+    Graph,
+    TrafficLight
+  }
 })
 export default class SampleIndex extends Vue {
   @Prop({

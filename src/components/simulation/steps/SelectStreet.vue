@@ -13,7 +13,7 @@
         <div class="col" v-show="sampleId !== 0 && hasSample">
 
         </div>
-        <create-graph ref="createGraph" v-show="sampleId === 0 && hasSample" class="q-mt-md" />
+        <graph ref="createGraph" v-show="sampleId === 0 && hasSample" class="q-mt-md" />
       </div>
     </div>
   </div>
@@ -21,10 +21,10 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import CreateGraph from 'components/simulation/graph/CreateGraph.vue'
+import Graph from 'components/simulation/graph/Graph.vue'
 import { StepComponentInterface, StepInterface } from 'src/app/models/simulations/Step'
 @Component({
-  components: { CreateGraph }
+  components: { Graph }
 })
 export default class SelectStreet extends Vue implements StepComponentInterface{
   @Prop({ type: Object, required: true }) readonly step!: StepInterface;

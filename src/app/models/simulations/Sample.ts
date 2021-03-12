@@ -86,7 +86,6 @@ export class Sample implements SampleInterface {
     const sample = new Sample(JSON.parse(rawSample.payload))
     sample._applyMetadata(rawSample.id, rawSample.name, rawSample.cameraLink, rawSample.entryStreetsIds, rawSample.departureStreetsIds)
     sample._applyRelations(rawSample.camera?.data, rawSample.trafficLights?.data)
-    console.log(sample)
     return sample;
   }
 

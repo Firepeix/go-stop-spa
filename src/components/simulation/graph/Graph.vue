@@ -1,6 +1,6 @@
 <template>
   <q-card bordered flat class="fit">
-    <q-card-section>
+    <q-card-section v-if="hasActions" >
       <div class="row q-col-gutter-sm">
         <div class="col-2">
           <q-btn color="primary" dense icon="mdi-plus-circle-outline" unelevated class="full-width" label="Rua"/>
@@ -39,7 +39,7 @@
         </div>
       </div>
     </q-card-section>
-    <q-separator />
+    <q-separator v-if="hasActions" />
     <q-card-section>
       <div class="row">
         <div class="col">
@@ -54,8 +54,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import Graph from 'src/app/simulations/Graph'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Graph as GraphModel } from 'src/app/simulations/Graph'
 import SelectedNodeOptions from 'components/simulation/graph/SelectedNodeOptions.vue'
 import { NODE_TYPES } from 'src/app/simulations/Node'
 import { NodeInterface } from 'src/app/simulations/NodeInterface'
@@ -63,12 +63,14 @@ import { SampleInterface } from 'src/app/models/simulations/Sample'
 @Component({
   components: { SelectedNodeOptions }
 })
-export default class CreateGraph extends Vue {
+export default class Graph extends Vue {
+  @Prop({ type: Boolean, required: false }) readonly hasActions!: boolean = false;
+  @Prop({ type: Object, required: false }) readonly sample!: SampleInterface|undefined;
 
   private initialized = false
   private streetName = '';
   private lightName = '';
-  private graph : Graph|undefined = undefined;
+  private graph : GraphModel|undefined = undefined;
   public selectedNode : NodeInterface|null = null;
 
   private construct (): void {
@@ -78,9 +80,12 @@ export default class CreateGraph extends Vue {
   private initGraph (): void {
     const element = document.getElementById('graph');
     if (element !== null) {
-      this.graph = new Graph(element)
+      this.graph = new GraphModel(element)
       this.initialized = true
       this._addListeners()
+      if (this.sample !== undefined) {
+        this.graph.addSample(this.sample);
+      }
     }
   }
 
