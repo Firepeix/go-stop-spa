@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { RawSampleInterface, Sample as SampleModel, SampleInterface } from 'src/app/models/simulations/Sample'
+import { RawFindSampleInterfaceResponse, RawSampleInterface, Sample as SampleModel, SampleInterface } from 'src/app/models/simulations/Sample'
 import SampleTable from 'components/geographic/sample/SampleTable.vue'
 import Sample from 'components/geographic/sample/Sample.vue'
 @Component({
@@ -37,7 +37,7 @@ export default class SampleIndex extends Vue {
   public sample : SampleInterface|null = null
 
   public construct () {
-    this.setSample()
+    void this.setSample()
   }
 
   public async setSample () {
@@ -52,7 +52,7 @@ export default class SampleIndex extends Vue {
   }
 
   public async getSample () : Promise<SampleInterface> {
-    const response = await this.$axios.get(`${this.$API_URL}/samples/${this.$route.params.id}`, { params: { include: 'camera,trafficLights' } })
+    const response = await this.$axios.get<RawFindSampleInterfaceResponse>(`${this.$API_URL}/samples/${this.$route.params.id}`, { params: { include: 'camera,trafficLights,streets' } })
     return Promise.resolve(this.parseSample(response.data.data))
   }
 

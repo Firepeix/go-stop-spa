@@ -12,7 +12,7 @@ export class Position implements PositionInterface {
   private readonly _x: number;
   private readonly _y: number;
 
-  constructor (x: number = 0, y: number = 0) {
+  constructor (x = 0, y = 0) {
     this._x = x
     this._y = y
   }

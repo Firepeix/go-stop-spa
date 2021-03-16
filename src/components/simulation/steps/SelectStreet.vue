@@ -26,11 +26,11 @@ import { StepComponentInterface, StepInterface } from 'src/app/models/simulation
 @Component({
   components: { Graph }
 })
-export default class SelectStreet extends Vue implements StepComponentInterface{
+export default class SelectStreet extends Vue implements StepComponentInterface {
   @Prop({ type: Object, required: true }) readonly step!: StepInterface;
 
   $refs!: {
-    createGraph: CreateGraph
+    createGraph: Graph
   }
 
   public sampleId = 0
@@ -42,10 +42,11 @@ export default class SelectStreet extends Vue implements StepComponentInterface{
   }
 
   complete (): void {
-    const sample = this.sampleId === 0 ? this.$refs.createGraph.createSample() : null
-    this.step.save(JSON.stringify(sample?.streetSamples))
-    this.$emit('completed')
+    // const sample = this.$refs.createGraph.createSample()
+    // if (sample !== undefined) {
+    //   this.step.save(JSON.stringify(sample.streetSamples))
+    //   this.$emit('completed')
+    // }
   }
-
 }
 </script>

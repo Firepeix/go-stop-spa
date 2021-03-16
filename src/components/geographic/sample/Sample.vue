@@ -7,7 +7,7 @@
       </div>
     </div>
     <q-separator/>
-    <div class="row q-pa-md q-col-gutter-md traffic-lights-wrapper">
+    <div class="row q-pa-md q-col-gutter-md traffic-lights-wrapper justify-around">
       <traffic-light :key="light.uuid" :light="light" v-for="light in sample.trafficLights"/>
     </div>
     <q-separator/>

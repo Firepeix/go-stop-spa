@@ -6,9 +6,11 @@ export interface TrafficLightInterface {
   sampleId: number;
   status: string;
   uuid: string;
+  outgoingStreetsUUIDs: string[];
   name: string;
   upperPosition: Position;
   lowerPosition: Position;
+  graphPosition: PositionInterface;
 }
 
 export interface RawTrafficLightInterface {
@@ -18,8 +20,10 @@ export interface RawTrafficLightInterface {
   status: string;
   uuid: string;
   name: string;
+  outgoingStreetsUUIDs: string[];
   upperPosition: PositionInterface;
   lowerPosition: PositionInterface;
+  graphPosition: PositionInterface;
 }
 
 export interface RawTrafficLightsResponse {

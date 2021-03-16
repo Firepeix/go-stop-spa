@@ -45,8 +45,8 @@
         <div class="col">
           <div id="graph" style="min-height: 395px"></div>
         </div>
-        <div class="col-3" v-show="initialized && selectedNode !== null">
-          <selected-node-options @unselect="unselect" :node="selectedNode"/>
+        <div class="col-3 node-drawer" v-show="isSelected">
+          <selected-node-options :has-actions="hasActions" @unselect="unselect" :node="selectedNode"/>
         </div>
       </div>
     </q-card-section>
@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Graph as GraphModel } from 'src/app/simulations/Graph'
 import SelectedNodeOptions from 'components/simulation/graph/SelectedNodeOptions.vue'
 import { NODE_TYPES } from 'src/app/simulations/Node'
@@ -64,7 +64,7 @@ import { SampleInterface } from 'src/app/models/simulations/Sample'
   components: { SelectedNodeOptions }
 })
 export default class Graph extends Vue {
-  @Prop({ type: Boolean, required: false }) readonly hasActions!: boolean = false;
+  @Prop({ type: Boolean, required: false }) readonly hasActions: boolean = false;
   @Prop({ type: Object, required: false }) readonly sample!: SampleInterface|undefined;
 
   private initialized = false
@@ -72,6 +72,7 @@ export default class Graph extends Vue {
   private lightName = '';
   private graph : GraphModel|undefined = undefined;
   public selectedNode : NodeInterface|null = null;
+  public isSelected = false
 
   private construct (): void {
     this.initGraph()
@@ -89,22 +90,44 @@ export default class Graph extends Vue {
     }
   }
 
+  @Watch('selectedNode')
+  public onSelectedNodeChange () : void {
+    const nodeDrawer = this.$el.querySelector('.node-drawer')
+    if (nodeDrawer !== null) {
+      if (this.selectedNode !== undefined && this.selectedNode !== null) {
+        this.isSelected = true
+        setTimeout(() => {
+          nodeDrawer.classList.add('show')
+        }, 100)
+        return
+      }
+      this.isSelected = false
+      nodeDrawer.classList.remove('show')
+    }
+  }
+
   private _addListeners (): void {
-    this.graph?.addNodeEventListeners('select', 'node', (node: NodeInterface) => {
-      this.selectedNode = node
-    })
-    this.graph?.addNodeEventListeners('unselect', 'node', () => {
-      this.selectedNode = null
-    })
+    if (this.graph !== undefined) {
+      this.graph.addNodeEventListeners('select', 'node', (node: NodeInterface) => {
+        this.selectedNode = node
+      })
+      this.graph.addNodeEventListeners('unselect', 'node', () => {
+        this.selectedNode = null
+      })
+    }
   }
 
   private addStreet (): void {
-    this.graph?.addNode(this.streetName, NODE_TYPES.STREET)
+    if (this.graph !== undefined) {
+      this.graph.addNode(this.streetName, NODE_TYPES.STREET)
+    }
     this.streetName = ''
   }
 
   private addTrafficLight (): void {
-    this.graph?.addNode(this.lightName, NODE_TYPES.TRAFFIC_LIGHT)
+    if (this.graph !== undefined) {
+      this.graph.addNode(this.lightName, NODE_TYPES.TRAFFIC_LIGHT)
+    }
     this.lightName = ''
   }
 
@@ -114,7 +137,9 @@ export default class Graph extends Vue {
 
   private clean (): void {
     this.selectedNode = null
-    this.graph?.clean()
+    if (this.graph !== undefined) {
+      this.graph.clean()
+    }
   }
 
   public createSample () : SampleInterface|undefined {
@@ -126,3 +151,10 @@ export default class Graph extends Vue {
   }
 }
 </script>
+<style lang="stylus">
+.node-drawer
+  opacity 0
+  transition opacity 300ms
+  &.show
+    opacity 1
+</style>

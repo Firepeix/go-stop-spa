@@ -5,12 +5,12 @@ import { LocalStorage } from 'quasar'
 import { StepModel } from 'src/app/models/simulations/StepModel'
 
 export class Simulation {
-  public static getSteps () : StepInterface[] {
+  public static getSteps (): StepInterface[] {
     return [new SelectStreetStep(), new ConfigureSimulationStep()]
   }
 
-  public static getLastSavedStepId () : number {
-    const simulation : StepModel[]|null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
+  public static getLastSavedStepId (): number {
+    const simulation: StepModel[] | null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
     if (simulation !== null) {
       const step = simulation.reverse()[0]
       if (step !== undefined) {
@@ -26,8 +26,8 @@ export class Simulation {
     return 1
   }
 
-  public static getLastStepPayload () : string {
-    const simulation : StepModel[]|null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
+  public static getLastStepPayload (): string {
+    const simulation: StepModel[] | null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
     if (simulation !== null) {
       const step = simulation.reverse()[0]
       if (step !== undefined) {
@@ -38,14 +38,20 @@ export class Simulation {
     return ''
   }
 
-  public static saveStep(step: StepInterface, payload: string) {
-    const simulation : StepModel[]|null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
+  public static saveStep (step: StepInterface, payload: string) {
+    const simulation: StepModel[] | null = LocalStorage.has('simulation') ? LocalStorage.getItem('simulation') : []
     if (simulation !== null) {
-      const savedStep = simulation.findIndex(model => model.id === step.id);
+      const savedStep = simulation.findIndex(model => model.id === step.id)
       if (savedStep !== -1) {
-        simulation[savedStep] = { id: step.id, payload }
+        simulation[savedStep] = {
+          id: step.id,
+          payload
+        }
       } else {
-        simulation.push({ id: step.id, payload })
+        simulation.push({
+          id: step.id,
+          payload
+        })
       }
       LocalStorage.set('simulation', simulation)
     }

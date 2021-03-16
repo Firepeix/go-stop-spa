@@ -1,6 +1,7 @@
 import { NodeSingular } from 'cytoscape'
 import { NodeInterface } from 'src/app/simulations/NodeInterface'
 import { NodeListeners } from 'src/app/simulations/NodeListeners'
+import { PositionInterface } from 'src/app/primitives/PrimitivesModels'
 
 export interface BasicInfoInterface {
   id: string,
@@ -18,17 +19,19 @@ export class Node implements NodeInterface {
   private _name: string
   protected readonly _listeners: NodeListeners
   private readonly _outgoingNodes: string[]
+  private readonly _position : PositionInterface
 
   protected constructor (listeners: NodeListeners, rawNode: NodeSingular) {
-    this._id = rawNode.data('id')
-    this._name = rawNode.data('name')
-    this._outgoingNodes = rawNode.data('outgoingNodes')
+    this._id = String(rawNode.data('id'))
+    this._name = String(rawNode.data('name'))
+    this._outgoingNodes = Array(...rawNode.data('outgoingNodes')).map((id: string) => id)
+    this._position = rawNode.position()
     this._listeners = listeners
   }
 
   public static Create (listeners: NodeListeners, rawNode: NodeSingular): NodeInterface {
     const nodeType = [Node, StreetNode, TrafficLightNode]
-    return new nodeType[rawNode.data('type')](listeners, rawNode)
+    return new nodeType[Number(rawNode.data('type'))](listeners, rawNode)
   }
 
   get id (): string {
@@ -71,6 +74,10 @@ export class Node implements NodeInterface {
   get info () : BasicInfoInterface {
     return { id: this._id, name: this._name }
   }
+
+  get position (): PositionInterface {
+    return this._position
+  }
 }
 
 export class StreetNode extends Node {
@@ -92,7 +99,7 @@ export class TrafficLightNode extends Node {
 
   constructor (listeners: NodeListeners, rawNode: NodeSingular) {
     super(listeners, rawNode)
-    this._switchTime = rawNode.data('switchTime')
+    this._switchTime = Number(rawNode.data('switchTime'))
   }
 
   public static Create (listeners: NodeListeners, rawNode: NodeSingular): TrafficLightNode {

@@ -29,19 +29,17 @@ declare module 'vue/types/vue' {
 
 @Component
 export default class SimulationCreateStepper extends Vue {
-
   $refs!: {
     step: SelectStreet[]
     stepper: QStepper
   }
 
   private step = 1;
-  private steps : StepInterface[] = [];
+  public steps : StepInterface[] = [];
 
   private construct () {
     this.step = Simulation.getLastSavedStepId()
     this.steps = Simulation.getSteps()
-
   }
 
   public nextStep () : void {
@@ -52,7 +50,7 @@ export default class SimulationCreateStepper extends Vue {
     this.$refs.stepper.next()
   }
 
-  private mounted () {
+  public mounted () {
     this.construct()
   }
 }

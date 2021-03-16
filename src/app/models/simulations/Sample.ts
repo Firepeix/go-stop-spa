@@ -4,6 +4,8 @@ import { CameraInterface, RawCameraInterface } from 'src/app/models/vision/Visio
 import { CameraModel } from 'src/app/models/vision/VisionModels'
 import { RawTrafficLightInterface, RawTrafficLightsResponse, TrafficLightInterface } from 'src/app/models/control/ControlInterfaces'
 import { TrafficLightModel } from 'src/app/models/control/ControlModels'
+import { RawStreetInterface, RawStreetsResponse, StreetInterface } from 'src/app/models/geographic/GeographicInterfaces'
+import { StreetModel } from 'src/app/models/geographic/GeographicModels'
 
 export interface SampleInterface {
   id: number;
@@ -13,8 +15,17 @@ export interface SampleInterface {
   departureStreetsIds: string[];
   streetSamples: StreetSampleCollection;
   basicStreets: BasicInfoInterface[];
-  trafficLights: TrafficLightInterface[]
+  trafficLights: TrafficLightInterface[];
+  streets: StreetInterface[];
   camera?: CameraInterface;
+}
+
+export interface RawSampleInterfaceResponse {
+  data: RawSampleInterface[]
+}
+
+export interface RawFindSampleInterfaceResponse {
+  data: RawSampleInterface
 }
 
 export interface RawSampleInterface {
@@ -28,6 +39,7 @@ export interface RawSampleInterface {
     data: RawCameraInterface
   };
   trafficLights?: RawTrafficLightsResponse
+  streets?: RawStreetsResponse
 }
 
 interface StreetSampleCollection {
@@ -49,13 +61,14 @@ export interface TrafficLightSample {
 }
 
 export class Sample implements SampleInterface {
-  private _id: number = 0
-  private _name: string = ''
-  private _link: string = ''
+  private _id = 0
+  private _name = ''
+  private _link = ''
   private _entryStreetsIds: string[] = []
   private _departureStreetsIds: string[] = []
   private readonly _streetSamples: StreetSampleCollection
   private _trafficLights: TrafficLightInterface[] = []
+  private _streets: StreetInterface[] = []
   private _camera: CameraInterface|undefined = undefined
 
   private constructor (streetSamples: StreetSampleCollection) {
@@ -85,8 +98,12 @@ export class Sample implements SampleInterface {
   public static CreateFromModel (rawSample: RawSampleInterface) : SampleInterface {
     const sample = new Sample(JSON.parse(rawSample.payload))
     sample._applyMetadata(rawSample.id, rawSample.name, rawSample.cameraLink, rawSample.entryStreetsIds, rawSample.departureStreetsIds)
-    sample._applyRelations(rawSample.camera?.data, rawSample.trafficLights?.data)
+    sample._applyRelations(rawSample.camera?.data, rawSample.trafficLights?.data, rawSample.streets?.data)
     return sample;
+  }
+
+  public static Empty () : SampleInterface {
+    return new Sample(JSON.parse('[]'));
   }
 
   public static createTrafficLightSample (lightNodes: TrafficLightNode[], streetNodes: StreetNode[]): TrafficLightSampleCollection {
@@ -96,7 +113,7 @@ export class Sample implements SampleInterface {
 
       collection[light.id] = {
         info: light.info,
-        streets: outgoingStreets.map(node => node.info),
+        streets: outgoingStreets.map(node => node.info)
       }
     })
     return collection
@@ -120,15 +137,14 @@ export class Sample implements SampleInterface {
     this._departureStreetsIds = departureStreets
   }
 
-  private _applyRelations (camera: RawCameraInterface|undefined, trafficLights: RawTrafficLightInterface[]|undefined) : void {
+  private _applyRelations (camera: RawCameraInterface|undefined, trafficLights: RawTrafficLightInterface[]|undefined, streets: RawStreetInterface[]|undefined) : void {
     this._camera = camera !== undefined ? new CameraModel(camera.view, camera.isRecording) : undefined
     if (trafficLights !== undefined) {
-      this._applyTrafficLightModels(trafficLights)
+      this._trafficLights = trafficLights.map(rawTrafficLight => TrafficLightModel.Create(rawTrafficLight))
     }
-  }
-
-  private _applyTrafficLightModels (trafficLights: RawTrafficLightInterface[]) {
-    this._trafficLights = trafficLights.map(rawTrafficLight => TrafficLightModel.Create(rawTrafficLight))
+    if (streets !== undefined) {
+      this._streets = streets.map(rawStreet => StreetModel.Create(rawStreet))
+    }
   }
 
   get departureStreetsIds (): string[] {
@@ -157,6 +173,10 @@ export class Sample implements SampleInterface {
 
   get trafficLights (): TrafficLightInterface[] {
     return this._trafficLights
+  }
+
+  get streets () : StreetInterface[] {
+    return this._streets
   }
 
   public static getTableColumns () : TableColumnInterface[] {

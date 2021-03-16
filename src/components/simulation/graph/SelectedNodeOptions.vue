@@ -9,11 +9,11 @@
     </div>
     <div class="row">
       <div class="col">
-        <q-input @input="changeName" :value="node.name" dense label="Nome" />
+        <q-input @input="changeName" :readonly="!hasActions" :value="node.name" dense label="Nome" />
       </div>
     </div>
     <traffic-light-options class="q-mt-sm" :node="node" v-if="node.isTrafficLight" />
-    <div class="row q-mt-xs q-col-gutter-md">
+    <div class="row q-mt-xs q-col-gutter-md" v-if="hasActions">
       <div class="col-6">
         <q-btn color="positive" @click="connect" dense unelevated class="full-width" label="Conectar"/>
       </div>
@@ -32,6 +32,7 @@ import { NodeInterface } from 'src/app/simulations/NodeInterface'
   components: { TrafficLightOptions }
 })
 export default class SelectedNodeOptions extends Vue {
+  @Prop({ type: Boolean, required: false }) readonly hasActions: boolean = false;
   @Prop({ type: Object, required: false }) readonly node!: NodeInterface;
 
   private previousSelected : NodeInterface|null = null

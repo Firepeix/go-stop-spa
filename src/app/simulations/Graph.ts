@@ -10,12 +10,12 @@ export interface GraphPosition {
 }
 
 export class Graph {
-
   private graph: cytoscape.Core
   private _nodeManager: NodeManager
   private style: GraphStyle
   private element: HTMLElement
   private _defaultNodePadding = 8
+  private _sample : SampleInterface
 
   constructor (element: HTMLElement) {
     this.style = new GraphStyle()
@@ -25,9 +25,10 @@ export class Graph {
       container: element,
       style: this.style.toArray()
     })
+    this._sample = Sample.Empty()
   }
 
-  public addNodeEventListeners (eventName: string, type: string, handler: Function): void {
+  public addNodeEventListeners (eventName: string, type: string, handler: CallableFunction): void {
     this.graph.on(eventName, type, event => {
       if (eventName === 'select') {
         handler(this._createNodes([event.target])[0])
@@ -38,15 +39,36 @@ export class Graph {
   }
 
   public addSample (sample: SampleInterface) : void {
-    this._addSampleTrafficLights(sample)
+    this._sample = sample
+    this._addSampleNodes()
+    this._addSampleConnections()
+    this.graph.fit()
   }
 
-  private _addSampleTrafficLights (sample: SampleInterface) : void {
-    sample.trafficLights.forEach(light => {
-      this.addTrafficLightNode(light.name, this.getNextNodePosition())
+  private _addSampleNodes () : void {
+    this._sample.streets.forEach(street => {
+      this.addStreetNode(street.name, street.graphPosition, street.uuid)
+    })
+    this._sample.trafficLights.forEach(light => {
+      this.addTrafficLightNode(light.name, light.graphPosition, light.uuid)
     })
   }
 
+  private _addSampleConnections () : void {
+    this._sample.trafficLights.forEach(light => {
+      light.outgoingStreetsUUIDs.forEach(uuid => {
+        this._connectNodesById(light.uuid, uuid)
+      })
+    })
+    this._sample.streets.forEach(street => {
+      street.outgoingStreetsUUIDs.forEach(uuid => {
+        this._connectNodesById(street.uuid, uuid)
+      })
+      street.outgoingTrafficLightsUUIDs.forEach(uuid => {
+        this._connectNodesById(street.uuid, uuid)
+      })
+    })
+  }
 
   public changeNodeAttribute (attribute: string, name: string|number, node: NodeInterface) {
     this.graph.getElementById(node.id).data(attribute, name)
@@ -94,7 +116,7 @@ export class Graph {
     const parents = this.graph.getElementById(node.id).incomers()
     parents.forEach(rawElement => {
       if (rawElement.isNode()) {
-        const nodes = rawElement.data('outgoingNodes').filter((id: string) => id !== node.id)
+        const nodes = Array(...rawElement.data('outgoingNodes')).filter((id: string) => id !== node.id)
         rawElement.data('outgoingNodes', nodes)
       }
     })
@@ -108,11 +130,15 @@ export class Graph {
   }
 
   public connectNodes (baseNode: NodeInterface, node: NodeInterface) : void {
-    const rawNode = this.graph.getElementById(baseNode.id)
-    const outgoingNodes = rawNode.data('outgoingNodes')
-    outgoingNodes.push(node.id)
+    this._connectNodesById(baseNode.id, node.id)
+  }
+
+  private _connectNodesById (baseId: string, id: string) : void {
+    const rawNode = this.graph.getElementById(baseId)
+    const outgoingNodes = Array(...rawNode.data('outgoingNodes'))
+    outgoingNodes.push(id)
     rawNode.data('outgoingNodes', outgoingNodes)
-    this._addEdge(baseNode.id, node.id)
+    this._addEdge(baseId, id)
   }
 
   public addNode (name: string, type = NODE_TYPES.ANY, position: GraphPosition = { x: -1, y: 0 }): void {
@@ -124,12 +150,28 @@ export class Graph {
     this.graph.add({ group: 'nodes', data: { name, type, outgoingNodes: [] }, position })
   }
 
-  private _addEdge(fromId: string, toId: string) : void {
+  public addStreetNode (name: string, position: GraphPosition, id: string|null = null) : void {
+    if (id !== null) {
+      this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.STREET, outgoingNodes: [], id }, position: { x: position.x, y: position.y } })
+      return;
+    }
+    this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.STREET, outgoingNodes: [] }, position: { x: position.x, y: position.y } })
+  }
+
+  private addTrafficLightNode (name: string, position: GraphPosition, id: string|null = null) : void {
+    if (id !== null) {
+      this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.TRAFFIC_LIGHT, outgoingNodes: [], switchTime: 3, id }, position: { x: position.x, y: position.y } })
+      return;
+    }
+    this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.TRAFFIC_LIGHT, outgoingNodes: [], switchTime: 3 }, position: { x: position.x, y: position.y } })
+  }
+
+  private _addEdge (fromId: string, toId: string) : void {
     this.graph.add({ group: 'edges', data: { source: fromId, target: toId } })
   }
 
   private getNextNodePosition (): GraphPosition {
-    let position = this.getCenterPosition()
+    const position = this.getCenterPosition()
     const nodes = this.graph.nodes()
 
     if (nodes.length > 0) {
@@ -142,10 +184,6 @@ export class Graph {
     }
 
     return position
-  }
-
-  private addTrafficLightNode (name: string, position: GraphPosition) : void {
-    this.graph.add({ group: 'nodes', data: { name, type: NODE_TYPES.TRAFFIC_LIGHT, outgoingNodes: [], switchTime: 3 }, position })
   }
 
   public clean (): void {
@@ -196,7 +234,7 @@ class GraphStyle {
   }
 }
 
-class NodeManager{
+class NodeManager {
   private readonly _graph: Graph;
 
   constructor (graph: Graph) {

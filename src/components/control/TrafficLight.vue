@@ -31,15 +31,10 @@ import { exportFile } from 'quasar'
 export default class TrafficLight extends Vue {
   @Prop({ type: Object, required: true }) readonly light!: TrafficLightInterface;
 
-
-  public construct () {
-  }
-
   public async searchVehicleRate () {
     const response = await this.$axios.get<number[]>(`${this.$API_URL}/samples/${this.light.sampleId}/get-rate/${this.light.id}`)
     this.downloadRate(response.data)
   }
-
 
   public downloadRate (int: number[]) : void {
     let file = '';
@@ -48,10 +43,6 @@ export default class TrafficLight extends Vue {
     })
 
     exportFile(`Taxa de ${this.light.name}.txt`, file)
-  }
-
-  public mounted () {
-    this.$nextTick(() => this.construct())
   }
 }
 </script>
@@ -97,7 +88,5 @@ export default class TrafficLight extends Vue {
   box-shadow: 0 0 40px #0d0;
   z-index: 1;
 }
-
-
 
 </style>

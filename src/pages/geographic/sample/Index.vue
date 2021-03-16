@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { RawSampleInterface, Sample, SampleInterface } from 'src/app/models/simulations/Sample'
+import { RawSampleInterface, RawSampleInterfaceResponse, Sample, SampleInterface } from 'src/app/models/simulations/Sample'
 import SampleTable from 'components/geographic/sample/SampleTable.vue'
 @Component({
   components: { SampleTable }
@@ -40,7 +40,7 @@ export default class SampleIndex extends Vue {
   public samples : SampleInterface[] = []
 
   public construct () {
-    this.setSamples()
+    void this.setSamples()
   }
 
   public async setSamples () {
@@ -48,7 +48,7 @@ export default class SampleIndex extends Vue {
   }
 
   public async getSamples () : Promise<SampleInterface[]> {
-    const response = await this.$axios.get(`${this.$API_URL}/samples`)
+    const response = await this.$axios.get<RawSampleInterfaceResponse>(`${this.$API_URL}/samples`)
     return Promise.resolve(this.parseSample(response.data.data))
   }
 

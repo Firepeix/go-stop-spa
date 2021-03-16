@@ -73,6 +73,7 @@ module.exports = {
     'arrow-parens': 'off',
     'one-var': 'off',
     'no-void': 'off',
+    'no-multiple-empty-lines': 'off',
     "semi": 0,
     'no-mixed-operators': 'off',
     'import/first': 'off',
